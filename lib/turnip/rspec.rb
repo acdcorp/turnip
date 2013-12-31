@@ -69,6 +69,7 @@ module Turnip
 
               path     = Pathname.new(feature_file)
               sub_dirs = path.dirname.to_s.gsub(/#{app_root}\/spec\/(features\/)/, '')
+                                          .gsub(/_/, '/')
                                           .split('/').collect(&:capitalize)
               default_steps_module = (
                 sub_dirs | [
