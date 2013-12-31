@@ -61,15 +61,23 @@ module Turnip
               # This is kind of a hack, but it will make RSpec throw way nicer exceptions
               example.metadata[:file_path] = feature_file
 
-              path = Pathname.new(feature_file)
-              default_steps_file = File.join(path.dirname, 'steps', path.basename.to_s.sub('.feature', '_steps.rb'))
-              default_steps_module = [path.basename.to_s.sub('.feature', '').split('_').collect(&:capitalize), 'Steps'].join
+              # This is to avoid the error uninitialized constant Module::Rails
+              # when running the turnip specs
+              app_root = defined?(Rails.root.to_s) \
+                ? Rails.root.to_s
+                : File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 
-              if File.exists?(default_steps_file)
-                require default_steps_file
-                if Module.const_defined?(default_steps_module)
-                  extend Module.const_get(default_steps_module)
-                end
+              path     = Pathname.new(feature_file)
+              sub_dirs = path.dirname.to_s.gsub(/#{app_root}\/spec\/(features\/)/, '')
+                                          .split('/').collect(&:capitalize)
+              default_steps_module = (
+                sub_dirs | [
+                  path.basename.to_s.sub('.feature', '').split('_').collect(&:capitalize), 'Steps'
+                ]
+              ).join
+
+              if Module.const_defined?(default_steps_module)
+                extend Module.const_get(default_steps_module)
               end
 
               feature.backgrounds.map(&:steps).flatten.each do |step|
