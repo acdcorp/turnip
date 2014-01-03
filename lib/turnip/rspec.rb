@@ -63,14 +63,12 @@ module Turnip
 
               # This is to avoid the error uninitialized constant Module::Rails
               # when running the turnip specs
-              app_root = defined?(Rails.root.to_s) \
-                ? Rails.root.to_s
-                : File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 
               path     = Pathname.new(feature_file)
-              sub_dirs = path.dirname.to_s.gsub(/#{app_root}\/spec\/(features\/)/, '')
+              sub_dirs = path.dirname.to_s.gsub(/^.*\/(spec|)(features|)/, '')
                                           .gsub(/_/, '/')
                                           .split('/').collect(&:capitalize)
+
               default_steps_module = (
                 sub_dirs | [
                   path.basename.to_s.sub('.feature', '').split('_').collect(&:capitalize), 'Steps'
