@@ -1,7 +1,7 @@
 require 'capybara/rspec'
 
 RSpec.configure do |config|
-  config.before do
+  config.before :suite do
     if self.class.include?(Capybara::DSL) and example.metadata[:turnip]
       Capybara.current_driver = Capybara.javascript_driver if example.metadata.has_key?(:javascript)
       example.metadata.each do |tag, value|
